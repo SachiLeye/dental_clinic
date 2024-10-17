@@ -22,7 +22,7 @@
         <div class="row text-center">
             <div class="col-md-4">
                 <div class="card mb-4">
-                    <img src="assets/images/Dental1.jpg" class="card-img-top">
+                    <img src="../assets/images/dental2.jpg" class="card-img-top">
                     <div class="card-body">
                         <h5 class="card-title">Whitens</h5>
                         <p class="card-text">Professional cleaning to maintain your oral health.</p>
@@ -31,7 +31,7 @@
             </div>
             <div class="col-md-4">
                 <div class="card mb-4">
-                    <img src="assets/images/dental2.jpg" class="card-img-top">
+                    <img src="../assets/images/dental3.jpg" class="card-img-top">
                     <div class="card-body">
                         <h5 class="card-title">Saving</h5>
                         <p class="card-text">Restore your teeth with high-quality filling materials.</p>
@@ -40,7 +40,7 @@
             </div>
             <div class="col-md-4">
                 <div class="card mb-4">
-                    <img src="assets/images/dental3.jpg" class="card-img-top">
+                    <img src="../assets/images/Dental1.jpg" class="card-img-top">
                     <div class="card-body">
                         <h5 class="card-title">Equipped</h5>
                         <p class="card-text">Get a brighter smile with our whitening treatments.</p>
