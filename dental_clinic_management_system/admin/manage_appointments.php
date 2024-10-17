@@ -7,16 +7,50 @@ if (!isset($_SESSION['admin_logged_in'])) {
     exit();
 }
 
-$stmt = $conn->query('SELECT a.appointment_id, p.first_name, p.last_name, a.appointment_date, s.service_name, a.status
-                     FROM appointments a
-                     JOIN patients p ON a.patient_id = p.patient_id
-                     JOIN services s ON a.service_id = s.service_id');
+// Initialize search variables
+$search_patient = isset($_POST['search_patient']) ? $_POST['search_patient'] : '';
+$search_service = isset($_POST['search_service']) ? $_POST['search_service'] : '';
+$search_status = isset($_POST['search_status']) ? $_POST['search_status'] : '';
 
-if (!$stmt) {
-    die("Error fetching appointments: " . implode(", ", $conn->errorInfo()));
+// Build the base SQL query
+$sql = "SELECT a.appointment_id, p.first_name, p.last_name, a.appointment_date, s.service_name, a.status
+        FROM appointments a
+        JOIN patients p ON a.patient_id = p.patient_id
+        JOIN services s ON a.service_id = s.service_id
+        WHERE 1=1"; // Start with a true condition for appending more conditions
+
+// Add conditions based on search inputs
+if (!empty($search_patient)) {
+    $sql .= " AND (p.first_name LIKE :patient_name OR p.last_name LIKE :patient_name)";
+}
+if (!empty($search_service)) {
+    $sql .= " AND s.service_name LIKE :service_name";
+}
+if (!empty($search_status)) {
+    $sql .= " AND a.status LIKE :status";
 }
 
-$appointments = $stmt->fetchAll(PDO::FETCH_ASSOC);
+$sql .= " ORDER BY a.appointment_date ASC"; // Adjust the order as needed
+
+$query = $conn->prepare($sql); // Prepare the SQL statement
+
+// Bind parameters if they are set
+if (!empty($search_patient)) {
+    $patient_name = "%" . $search_patient . "%"; // Wildcard search for patient name
+    $query->bindParam(':patient_name', $patient_name);
+}
+if (!empty($search_service)) {
+    $service_name = "%" . $search_service . "%"; // Wildcard search for service name
+    $query->bindParam(':service_name', $service_name);
+}
+if (!empty($search_status)) {
+    $status = "%" . $search_status . "%"; // Wildcard search for status
+    $query->bindParam(':status', $status);
+}
+
+$query->execute(); // Execute the query
+
+$appointments = $query->fetchAll(PDO::FETCH_ASSOC); // Fetch all results
 ?>
 
 <!DOCTYPE html>
@@ -34,12 +68,23 @@ $appointments = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <div class="container mt-5">
         <h3>Appointments</h3>
 
-        <?php if (isset($_SESSION['message'])): ?>
-            <div class="alert alert-<?php echo strpos($_SESSION['message'], 'successfully') !== false ? 'success' : 'danger'; ?>">
-                <?php echo $_SESSION['message']; unset($_SESSION['message']); ?>
+        <!-- Search Form -->
+        <form method="POST" class="mb-4">
+            <div class="row">
+                <div class="col-md-4">
+                    <input type="text" name="search_patient" class="form-control" placeholder="Search by Patient Name" value="<?php echo htmlspecialchars($search_patient); ?>">
+                </div>
+                <div class="col-md-4">
+                    <input type="text" name="search_service" class="form-control" placeholder="Search by Service" value="<?php echo htmlspecialchars($search_service); ?>">
+                </div>
+                <div class="col-md-4">
+                    <input type="text" name="search_status" class="form-control" placeholder="Search by Status" value="<?php echo htmlspecialchars($search_status); ?>">
+                </div>
             </div>
-        <?php endif; ?>
+            <button type="submit" class="btn btn-primary">Search</button>
+        </form>
 
+        <!-- Display appointments -->
         <table class="table table-striped">
             <thead>
                 <tr>
@@ -47,25 +92,33 @@ $appointments = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     <th>Patient Name</th>
                     <th>Appointment Date</th>
                     <th>Service</th>
-                    <th>Status</th> 
+                    <th>Status </th> 
                     <th>Action</th> 
                 </tr>
             </thead>
             <tbody>
-                <?php foreach ($appointments as $appointment): ?>
-                    <tr>
-                        <td><?php echo htmlspecialchars($appointment['appointment_id']); ?></td>
-                        <td><?php echo htmlspecialchars($appointment['first_name'] . ' ' . $appointment['last_name']); ?></td>
-                        <td><?php echo htmlspecialchars($appointment['appointment_date']); ?></td>
-                        <td><?php echo htmlspecialchars($appointment['service_name']); ?></td>
-                        <td><?php echo htmlspecialchars($appointment['status']); ?></td> <!-- Display the status -->
+            <?php
+            if (count($appointments) > 0) { // Check the number of appointments
+                // Output data of each row
+                foreach ($appointments as $row) {
+                    echo "<tr>
+                        <td>" . htmlspecialchars($row['appointment_id']) . "</td>
+                        <td>" . htmlspecialchars($row['first_name'] . " " . $row['last_name']) . "</td>
+                        <td>" . date('Y-m-d H:i', strtotime($row['appointment_date'])) . "</td>
+                        <td>" . htmlspecialchars($row['service_name']) . "</td>
+                        <td>" . htmlspecialchars($row['status']) . "</td>
                         <td>
-                            <a href="mark_done.php?id=<?php echo $appointment['appointment_id']; ?>" class="btn btn-success btn-sm">Done</a>
-                            <a href="mark_postponed.php?id=<?php echo $appointment['appointment_id']; ?>" class="btn btn-warning btn-sm">Postponed</a>
-                            <a href="mark_followup.php?id=<?php echo $appointment['appointment_id']; ?>" class="btn btn-info btn-sm">Follow Up</a>
+                            <a href=\"edit_appointment.php?id=" . htmlspecialchars($row['appointment_id']) . "\" class=\"btn btn-primary\">Edit</a>
+                            <a href=\"mark_done.php?id=" . htmlspecialchars($row['appointment_id']) . "\" class=\"btn btn-success btn-sm\">Done</a>
+                            <a href=\"mark_postponed.php?id=" . htmlspecialchars($row['appointment_id']) . "\" class=\"btn btn-warning btn-sm\">Postponed</a>
+                            <a href=\"mark_followup.php?id=" . htmlspecialchars($row['appointment_id']) . "\" class=\"btn btn-info btn-sm\">Follow Up</a>
                         </td>
-                    </tr>
-                <?php endforeach; ?>
+                    </tr>";
+                }
+            } else {
+                echo "<tr><td colspan='6' class='text-center'>No appointments found</td></tr>";
+            }
+            ?>
             </tbody>
         </table>
     </div>
