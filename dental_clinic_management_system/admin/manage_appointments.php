@@ -8,9 +8,9 @@ if (!isset($_SESSION['admin_logged_in'])) {
 }
 
 // Initialize search variables
-$search_patient = isset($_POST['search_patient']) ? $_POST['search_patient'] : '';
-$search_service = isset($_POST['search_service']) ? $_POST['search_service'] : '';
-$search_status = isset($_POST['search_status']) ? $_POST['search_status'] : '';
+$search_patient = isset($_POST['search_patient']) ? trim($_POST['search_patient']) : '';
+$search_service = isset($_POST['search_service']) ? trim($_POST['search_service']) : '';
+$search_status = isset($_POST['search_status']) ? trim($_POST['search_status']) : '';
 
 // Build the base SQL query
 $sql = "SELECT a.appointment_id, p.first_name, p.last_name, a.appointment_date, s.service_name, a.status
@@ -19,36 +19,22 @@ $sql = "SELECT a.appointment_id, p.first_name, p.last_name, a.appointment_date, 
         JOIN services s ON a.service_id = s.service_id
         WHERE 1=1"; // Start with a true condition for appending more conditions
 
-// Add conditions based on search inputs
+// Add conditions dynamically based on search inputs
 if (!empty($search_patient)) {
-    $sql .= " AND (p.first_name LIKE :patient_name OR p.last_name LIKE :patient_name)";
+    $sql .= " AND (p.first_name LIKE '%" . $search_patient . "%' OR p.last_name LIKE '%" . $search_patient . "%')";
 }
 if (!empty($search_service)) {
-    $sql .= " AND s.service_name LIKE :service_name";
+    $sql .= " AND s.service_name LIKE '%" . $search_service . "%'";
 }
 if (!empty($search_status)) {
-    $sql .= " AND a.status LIKE :status";
+    $sql .= " AND a.status LIKE '%" . $search_status . "%'";
 }
 
 $sql .= " ORDER BY a.appointment_date ASC"; // Adjust the order as needed
 
 $query = $conn->prepare($sql); // Prepare the SQL statement
 
-// Bind parameters if they are set
-if (!empty($search_patient)) {
-    $patient_name = "%" . $search_patient . "%"; // Wildcard search for patient name
-    $query->bindParam(':patient_name', $patient_name);
-}
-if (!empty($search_service)) {
-    $service_name = "%" . $search_service . "%"; // Wildcard search for service name
-    $query->bindParam(':service_name', $service_name);
-}
-if (!empty($search_status)) {
-    $status = "%" . $search_status . "%"; // Wildcard search for status
-    $query->bindParam(':status', $status);
-}
-
-$query->execute(); // Execute the query
+$query->execute(); // Execute without bound parameters
 
 $appointments = $query->fetchAll(PDO::FETCH_ASSOC); // Fetch all results
 ?>
@@ -92,7 +78,7 @@ $appointments = $query->fetchAll(PDO::FETCH_ASSOC); // Fetch all results
                     <th>Patient Name</th>
                     <th>Appointment Date</th>
                     <th>Service</th>
-                    <th>Status </th> 
+                    <th>Status</th> 
                     <th>Action</th> 
                 </tr>
             </thead>
@@ -124,3 +110,4 @@ $appointments = $query->fetchAll(PDO::FETCH_ASSOC); // Fetch all results
     </div>
 </body>
 </html>
+
