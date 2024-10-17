@@ -18,19 +18,24 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         // Fetch the user data
         $user = $stmt->fetch(PDO::FETCH_ASSOC);
         
-        // Verify the password (assuming passwords are hashed)
-        if (password_verify($inputPassword, $user['password'])) {
-            // Set the session variable for the logged-in user
-            $_SESSION['username'] = $user['username'];
-            
-            // Debugging output
-            echo "<script>console.log('Login successful: " . $_SESSION['username'] . "');</script>";
-            
-            // Redirect to the home page
-            header("Location: index.php");
-            exit();
+        // Check if the email is verified
+        if ($user['verified'] == 0) {
+            $loginError = "Your email has not been verified. Please check your email to verify your account.";
         } else {
-            $loginError = "Invalid username or password.";
+            // Verify the password (assuming passwords are hashed)
+            if (password_verify($inputPassword, $user['password'])) {
+                // Set the session variable for the logged-in user
+                $_SESSION['username'] = $user['username'];
+                
+                // Debugging output
+                echo "<script>console.log('Login successful: " . $_SESSION['username'] . "');</script>";
+                
+                // Redirect to the home page
+                header("Location: index.php");
+                exit();
+            } else {
+                $loginError = "Invalid username or password.";
+            }
         }
     } else {
         $loginError = "Invalid username or password.";

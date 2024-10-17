@@ -28,14 +28,18 @@ if (session_status() === PHP_SESSION_NONE) {
                         <a class="nav-link" href="appointment.php">Book Appointment</a>
                     </li>
                     <li class="nav-item">
+                        <a class="nav-link" href="services.php">Services</a>
+                    </li>
+                    <li class="nav-item">
                         <a class="nav-link" href="e-consultation.php">E-Consultation</a>
                     </li>
                 </ul>
                 <ul class="navbar-nav">
                     <?php if (isset($_SESSION['username'])): ?>
                         <li class="nav-item">
-                            <a class="nav-link" href="#">Welcome, <?php echo htmlspecialchars($_SESSION['username']); ?></a>
-                        </li>
+    <span class="nav-link disabled">Welcome, <?php echo htmlspecialchars($_SESSION['username']); ?></span>
+</li>
+
                         <li class="nav-item">
                             <a class="nav-link btn btn-outline-light" href="logout.php" onclick="return confirmLogout();">Logout</a>
                         </li>
