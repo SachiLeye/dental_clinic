@@ -28,6 +28,9 @@ if (session_status() === PHP_SESSION_NONE) {
                         <a class="nav-link" href="appointment.php">Book Appointment</a>
                     </li>
                     <li class="nav-item">
+                        <a class="nav-link" href="services.php">Services</a>
+                    </li>
+                    <li class="nav-item">
                         <a class="nav-link" href="e-consultation.php">E-Consultation</a>
                     </li>
                 </ul>
