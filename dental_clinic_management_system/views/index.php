@@ -7,6 +7,23 @@
     <title>Home - Dental Clinic Management System</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="../assets/css/style.css" rel="stylesheet"> <!-- Custom CSS -->
+    <style>
+        /* Ensures all cards are the same size */
+        .card {
+            height: 100%;
+        }
+
+        /* Ensures the images fit and stretch inside the card */
+        .card-img-top {
+            height: 250px; /* Fixed height for images */
+            object-fit: cover; /* Stretch the image to cover the area */
+        }
+
+        /* Optional: Set a fixed height for card bodies */
+        .card-body {
+            min-height: 150px; /* Ensure the text area is consistent */
+        }
+    </style>
 </head>
 <body>
 
@@ -22,7 +39,7 @@
         <div class="row text-center">
             <div class="col-md-4">
                 <div class="card mb-4">
-                    <img src="../assets/images/dental2.jpg" class="card-img-top">
+                    <img src="../assets/images/dental2.jpg" class="card-img-top" alt="Whitening service">
                     <div class="card-body">
                         <h5 class="card-title">Whitens</h5>
                         <p class="card-text">Professional cleaning to maintain your oral health.</p>
@@ -31,7 +48,7 @@
             </div>
             <div class="col-md-4">
                 <div class="card mb-4">
-                    <img src="../assets/images/dental3.jpg" class="card-img-top">
+                    <img src="../assets/images/dental3.jpg" class="card-img-top" alt="Filling service">
                     <div class="card-body">
                         <h5 class="card-title">Saving</h5>
                         <p class="card-text">Restore your teeth with high-quality filling materials.</p>
@@ -40,7 +57,7 @@
             </div>
             <div class="col-md-4">
                 <div class="card mb-4">
-                    <img src="../assets/images/Dental1.jpg" class="card-img-top">
+                    <img src="../assets/images/Dental1.jpg" class="card-img-top" alt="Whitening treatment">
                     <div class="card-body">
                         <h5 class="card-title">Equipped</h5>
                         <p class="card-text">Get a brighter smile with our whitening treatments.</p>
